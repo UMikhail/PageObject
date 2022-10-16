@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import ru.netology.data.DataHelper;
 import ru.netology.page.DashboardPage;
 import ru.netology.page.LoginPage;
-import ru.netology.page.TransferCardPage;
-
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -28,24 +26,24 @@ public class TransferBetweenAccountsTest {
         var numberCardTransfer = DataHelper.getCardNumber("0002"); // перевод с этой карты
         String cashText = "100"; // сумма перевода
         int amount = Integer.parseInt(cashText); // вытаскиваем число из String в int
+        var dashboardPage = new DashboardPage();
 
         new LoginPage()
                 .validLogin(authInfo)
                 .validCode(verificationCode);
 
-        //баланс пополняемой карты до перевода
+        //баланс карт до перевода
         int cardA1 = new DashboardPage().getCardBalance("0001");
+        int cardA2 = new DashboardPage().getCardBalance("0002");
 
-        new DashboardPage()
-                .buttonFirstCard();
+        dashboardPage.buttonFirstCard().transferCard(numberCardTransfer, cashText);
 
-        new TransferCardPage()
-                .transferCard(numberCardTransfer, cashText);
-
-        //баланс пополняемой карты после перевода
+        //баланс карт после перевода
         int cardB1 = new DashboardPage().getCardBalance("0001");
+        int cardB2 = new DashboardPage().getCardBalance("0002");
 
         Assertions.assertEquals(cardA1 + amount, cardB1);
+        Assertions.assertEquals(cardA2 - amount, cardB2);
     }
 
     @Test
@@ -56,23 +54,23 @@ public class TransferBetweenAccountsTest {
         var numberCardTransfer = DataHelper.getCardNumber("0001"); // перевод с этой карты
         String cashText = "1000"; // сумма перевода
         int amount = Integer.parseInt(cashText); // вытаскиваем число из String в int
+        var dashboardPage = new DashboardPage();
 
         new LoginPage()
                 .validLogin(authInfo)
                 .validCode(verificationCode);
 
-        //баланс пополняемой карты до перевода
+        //баланс карт до перевода
         int cardA1 = new DashboardPage().getCardBalance("0002");
+        int cardA2 = new DashboardPage().getCardBalance("0001");
 
-        new DashboardPage()
-                .buttonLastCard();
+        dashboardPage.buttonLastCard().transferCard(numberCardTransfer, cashText);
 
-        new TransferCardPage()
-                .transferCard(numberCardTransfer, cashText);
-
-        //баланс пополняемой карты после перевода
+        //баланс карт после перевода
         int cardB1 = new DashboardPage().getCardBalance("0002");
+        int cardB2 = new DashboardPage().getCardBalance("0001");
 
         Assertions.assertEquals(cardA1 + amount, cardB1);
+        Assertions.assertEquals(cardA2 - amount, cardB2);
     }
 }
